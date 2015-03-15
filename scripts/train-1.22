@@ -41,7 +41,7 @@ mosesdir="$HOME/Desktop/Machine-Translation/MMM"
 # !!! The names of the languages should neither include spaces nor special characters, like asterisks, backslashes or question marks. Try to stick with letters, numbers, and the underscore, dash and dot if you want to avoid surprises. Avoid using a dash and the dot as the first character of the name. A 2 letter abbreviation is probably the ideal setting  !!!
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #Abbreviation of language 1 (source language) 
-lang1=pt
+lang1=zh
 #Abbreviation of language 2 (target language) 
 lang2=en
 #=========================================================== 2. FILES ===================================================================================
@@ -49,21 +49,23 @@ lang2=en
 # !!! The names of the files should not include spaces, as well as special characters, like asterisks, backslashes or question marks. Try to stick with letters, numbers, and the dash, dot, and underscore if you want to avoid Bash surprises. Avoid using a dash as the first character of a file name, because many Linux commands will treat it as a switch. If your files start with a dot, they'll become hidden files.!!!  
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #Basename of the corpus placed in $mosesdir/corpora_for_training (the default value refers to the 2 files 200000.for_train.en and 200000.for_train.pt, whose basename is 200000.for_train)
-corpusbasename=200000.for_train
+corpusbasename=UN.en-zh.for_train
 
 #Basename of the file used to build the language model (LM), placed in $mosesdir/corpora_for_training (!!! this is a file in the target language, having $lang2 as its extension; the extension should be omited when filling this parameter !!!)
-lmbasename=300000
+lmbasename=MultiUN.en-zh.shk
 
 #Basename of the recaser training file, placed in $mosesdir/corpora_for_training (!!! this is a file in the target language, having $lang2 as its extension; the extension should be omited when filling this parameter !!!)
-recaserbasename=300000
+recaserbasename=MultiUN.en-zh.shk
 
 #Basename of the tuning corpus, placed in $mosesdir/corpora_for_training (the default value refers to the 2 files 200000.for_tuning.en and 200000.for_tuning.pt, whose basename is 200000.for_tuning)
 #For a real corpus, other than the demo corpus, try to use files with 1000-2000 segments
-tuningbasename=200000.for_tuning
+#tuningbasename=200000.for_tuning
+tuningbasename=UN.en-zh.for_tuning
 
 #Basename of the test set files (used for testing the trained corpus), placed in $mosesdir/corpora_for_training (the default value refers to the 2 files 200000.for_test.en and 200000.for_test.pt, whose basename is 200000.for_test)
 #For a real corpus, other than the demo corpus, try to use files with 1000 segments
-testbasename=200000.for_test
+#testbasename=200000.for_test
+testbasename=UN.en-zh.for_test
 #======================================================= 3. TRAINING STEPS ==============================================================================
 #Number of processors of your computer that will be used by MGIZA (if you use all the processors available, the speed of the training will be considerably improved) 
 #!!! To use all the cores available in your computer, leave this parameter empty!!!
@@ -94,7 +96,7 @@ runtrainingtest=1
 # Use IRSTLM (1) or RandLM (5)
 lngmdl=1
 #Order of ngrams - the higher the better, but more memory required (choose between 3 and 9; good value: 5; default: 7)
-Gram=7
+Gram=5
 #----------------------------------------------------*** 4.1. IRSTLM PARAMETERS ***----------------------------------------------------------------------
 # Distributed language model: 1= Yes; Any other value = No (splits the file used to build the language model into parts, processes each part separately and finally merges the parts)
 distributed=1
@@ -103,7 +105,7 @@ dictnumparts=20
 # Smoothing possible values: witten-bell (default); kneser-ney, improved-kneser-ney (default: improved-kneser-ney)
 s='improved-kneser-ney'
 # Quantize LM (Reduces memory comsumption at the cost of some loss of performance); 1 = Do ; Any other value = Don't. May induce some accuracy loss. Reduces the size of the LM.
-quantize=0
+quantize=1
 # Memory-mapping of the LM. 1 = Do; Any other value = Don't. Avoids the creation of the binary LM directly in RAM (allows bigger LM at the cost of lower speed; often necessary when LM file is very big) !!!
 lmmemmapping=1
 #-----------------------------------------------------*** 4.2. RandLM PARAMETERS ***---------------------------------------------------------------------
@@ -231,9 +233,9 @@ reordering=msd-bidirectional-fe
 #Minimum length of the sentences (used by clean)
 MinLen=1
 #Maximum length of the sentences (used by clean)
-MaxLen=60
+MaxLen=100
 #Maximum length of phrases entered into phrase table (max: 7; choose a lower value if phrase size length is an issue)
-MaxPhraseLength=7
+MaxPhraseLength=20
 #-----------------------------------------------------*** 5.4. DECODER PARAMETERS  ***--------------------------------------------------------------------
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # !!! Only used in the training evaluation, and only if tuning = 0 !!!
@@ -242,14 +244,14 @@ MaxPhraseLength=7
 # Weights for language model (good values: 0.1-1; default: 1); ensures that output is fluent in target language
 weight_l=1
 # Weights for reordering model (good values: 0.1-1; default: 1); allows reordering of the input sentence
-weight_d=1
+weight_d=0.5
 # Weights for word penalty (good values: -3 to 3; default: 0; negative values favor large output; positive values favour short output); ensures translations do not get too long or too short
-weight_w=0
+weight_w=1
 #------------------------------------------
 # Use Minumum Bayes Risk (MBR) decoding (1 = Do; Any other value = do not); instead of outputing the translation with the highest probability, MBR decoding outputs the translation that is most similar to the most likely translations.
 mbr=0
 # Number of translation candidates consider. MBR decoding uses by default the top 200 distinct candidate translations to find the translation with minimum Bayes risk
-mbrsize=200
+mbrsize=100
 # Scaling factor used to adjust the translation scores (default = 1.0)
 mbrscale=1.0
 #------------------------------------------
@@ -257,11 +259,11 @@ mbrscale=1.0
 monotoneatpunctuation=0
 #***** SPEED TUNING:
 # Fixed limit for how many translation options are retrieved for each input phrase (0 = no limit; positive value = number of translation options per phrase)
-ttablelimit=20
+ttablelimit=50
 # Use the relative scores of hypothesis for pruning, instead of a fixed limit (0= no pruning; decimal value = more pruning)
 beamthreshold=0
 # Threshold for constructing hypotheses based on estimate cost (default: 0 = not used).During the beam search, many hypotheses are created that are too bad to be even entered on a stack. For many of them, it is even clear before the construction of the hypothesis that they would be not useful. Early discarding of such hypotheses hazards a guess about their viability. This is based on correct score except for the actual language model costs, which are very expensive to compute. Hypotheses that, according to this estimate, are worse than the worst hypothesis of the target stack, even given an additional specified threshold as cushion, are not constructed at all. This often speeds up decoding significantly. Try threshold factors between 0.5 and 1
-earlydiscardingthreshold=0
+earlydiscardingthreshold=0.7
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #To get faster performance than the default Moses settings at roughly the same performance, use the parameter settings $searchalgorithm=1, $cubepruningpoplimit=2000 and $stack=2000. With cube pruning, the size of the stack has little impact on performance, so it should be set rather high. The speed/quality trade-off is mostly regulated by the -cube-pruning-pop-limit, i.e. the number of hypotheses added to each stack
@@ -279,7 +281,7 @@ maxphraselen=20
 # Minimum number of hypotheses from each coverage pattern; you may also require that a minimum number of hypotheses is added for each word coverage (they may be still pruned out, however). This is done using the switch -cube-pruning-diversity, which sets the minimum. The default is 0
 cubepruningdiversity=0
 # Distortion (reordering) limit in maximum number of words (0 = monotone; -1 = unlimited ; any other positive value = maximal number of words; default:6)); limiting distortion often increases speed and quality (in our experience, avoid values of 0 and -1; default: 6)
-distortionlimit=6
+distortionlimit=15
 #======================================================= 6. TUNING PARAMETERS ===========================================================================
 #Do tuning.Possible values: no-tuning; apply-previous-weights ; tuning (default: no-tuning). Can lead, but does not always lead, to better results; takes ***much more*** time. You may want to train a corpus without tuning and afterwards do the tuning (reusing the previous training) to test the results. Default: no-tuning.
 #In order to apply-previous-weights, a weight.ini file should be placed in $mosesdir/training_files and should have the same structure of the file that already exists in that location and with that name
@@ -1616,4 +1618,3 @@ fi
 # can compile-lm --memmap IRSTLM (in 64 bits Ubuntu 9.04 version)
 # creates a log of all the files created
 # work directory renamed corpora_trained directory
-
